@@ -56,6 +56,7 @@ export function LaneCanvas({ game, onChangeStartBoard, onChangeAimBoard }: LaneC
 
     let destroyed = false;
     let frameId = 0;
+    let observer: ResizeObserver | null = null;
 
     const resize = () => {
       const bounds = canvas.getBoundingClientRect();
@@ -65,8 +66,12 @@ export function LaneCanvas({ game, onChangeStartBoard, onChangeAimBoard }: LaneC
       context.setTransform(scale, 0, 0, scale, 0, 0);
     };
 
-    const observer = new ResizeObserver(resize);
-    observer.observe(canvas);
+    if ('ResizeObserver' in window) {
+      observer = new ResizeObserver(resize);
+      observer.observe(canvas);
+    } else {
+      window.addEventListener('resize', resize);
+    }
     resize();
 
     const render = (now: number) => {
@@ -83,7 +88,11 @@ export function LaneCanvas({ game, onChangeStartBoard, onChangeAimBoard }: LaneC
     return () => {
       destroyed = true;
       window.cancelAnimationFrame(frameId);
-      observer.disconnect();
+      if (observer) {
+        observer.disconnect();
+      } else {
+        window.removeEventListener('resize', resize);
+      }
     };
   }, []);
 

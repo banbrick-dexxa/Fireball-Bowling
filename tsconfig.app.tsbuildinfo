@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/LaneCanvas.tsx","./src/components/ScorePanel.tsx","./src/config/bowlers.ts","./src/game/audio.ts","./src/game/scoring.ts","./src/game/simulation.ts","./src/game/state.ts","./src/game/types.ts"],"version":"5.9.3"}

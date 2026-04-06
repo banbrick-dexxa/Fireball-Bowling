@@ -15,18 +15,17 @@ export class FireballAudio {
   setMuted(nextMuted: boolean) {
     this.muted = nextMuted;
 
-    const context = this.ensureContext();
-    if (!context || !this.master) {
-      return;
-    }
-
-    const now = context.currentTime;
-    this.master.gain.cancelScheduledValues(now);
-    this.master.gain.linearRampToValueAtTime(nextMuted ? 0.0001 : 0.88, now + 0.04);
-
     if (nextMuted) {
       this.stopRoll();
     }
+
+    if (!this.context || !this.master) {
+      return;
+    }
+
+    const now = this.context.currentTime;
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.linearRampToValueAtTime(nextMuted ? 0.0001 : 0.88, now + 0.04);
   }
 
   playUiTap() {
@@ -214,14 +213,20 @@ export class FireballAudio {
         return null;
       }
 
-      this.context = new AudioContextCtor();
-      this.master = this.context.createGain();
-      this.master.gain.value = this.muted ? 0.0001 : 0.88;
-      this.master.connect(this.context.destination);
+      try {
+        this.context = new AudioContextCtor();
+        this.master = this.context.createGain();
+        this.master.gain.value = this.muted ? 0.0001 : 0.88;
+        this.master.connect(this.context.destination);
+      } catch {
+        this.context = null;
+        this.master = null;
+        return null;
+      }
     }
 
     if (this.context.state === 'suspended') {
-      void this.context.resume();
+      void this.context.resume().catch(() => {});
     }
 
     return this.context;
